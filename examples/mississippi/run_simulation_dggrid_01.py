@@ -136,12 +136,13 @@ sCase = 'Case ' + '{:0d}'.format(iCase_index+3)
 aLegend.append(sCase)
 aLegend.append('Stream burning seeded priority-flood')
 
-
+aExtent_lake_michigan = [-89.8, -82.3, 40.1, 44.4]
+aExtent_jeffson = [-85.6, -78.7, 34.8, 38.9]
 
 if iFlag_visualization == 1:
 
     sFilename = os.path.join(  oPyhexwatershed.sWorkspace_output_hexwatershed, 'priority_flood.mp4' )
-    #oPyhexwatershed._animate(sFilename, iFlag_type_in =1,iFigwidth_in=5, iFigheight_in=7)
+    #oPyhexwatershed._animate(sFilename, iFlag_type_in =1,iFigwidth_in=10, iFigheight_in=7)
     sFilename = os.path.join(  oPyhexwatershed.sWorkspace_output_hexwatershed, 'priority_flood_track.gif' )
     #oPyhexwatershed._animate(sFilename, iFlag_type_in =2,iFigwidth_in=5, iFigheight_in=7)
 
@@ -167,24 +168,25 @@ if iFlag_visualization == 1:
     #                     aLegend_in = aLegend)
 
     sVariable_in = 'flow_direction_with_observation'
-
-    sFilename = os.path.join( oPyhexwatershed.sWorkspace_output_hexwatershed, 'flow_direction_w_mesh.png' )
-    #oPyhexwatershed.plot(sFilename_output_in=sFilename, iFlag_title_in =1,
-    #                     iFlag_esri_hydro_image_in=1,
-    #                     sVariable_in = sVariable_in,
-    #                     aExtent_in=aExtent_mississippi,
-    #                     sFilename_boundary_in=sFilename_mesh_boudary,
-    #                     aLegend_in = aLegend)
+    sFilename = os.path.join( oPyhexwatershed.sWorkspace_output_hexwatershed, 'flow_direction_w_mesh_zoom_jeffson.png' )
+    oPyhexwatershed.plot(sFilename_output_in=sFilename, iFlag_title_in =1,
+                         iFlag_esri_hydro_image_in=1,
+                         iFlag_filter_in=1,
+                         iFlag_arrow_in=0,
+                         sVariable_in = sVariable_in,
+                         aExtent_in=aExtent_jeffson,
+                         sFilename_boundary_in=sFilename_mesh_boudary,
+                         aLegend_in = aLegend)
 
     sFilename = os.path.join( oPyhexwatershed.sWorkspace_output_hexwatershed, 'drainage_area.png' )
 
-    oPyhexwatershed.plot(sFilename_output_in=sFilename, sVariable_in = 'drainage_area',
-                         iFlag_colorbar_in=1,
-                         iFlag_title_in =1,
-                         dData_min_in = 0.0, dData_max_in = 3.2E12,
-                         sFilename_boundary_in=sFilename_mesh_boudary,
-                         aExtent_in=aExtent_mississippi,
-                         aLegend_in = aLegend)
+    #oPyhexwatershed.plot(sFilename_output_in=sFilename, sVariable_in = 'drainage_area',
+    #                     iFlag_colorbar_in=1,
+    #                     iFlag_title_in =1,
+    #                     dData_min_in = 0.0, dData_max_in = 3.2E12,
+    #                     sFilename_boundary_in=sFilename_mesh_boudary,
+    #                     aExtent_in=aExtent_mississippi,
+    #                     aLegend_in = aLegend)
     sFilename =  'meander.png'
     #oPyhexwatershed.plot(sFilename, iFlag_title=0, sVariable_in='overlap',    aExtent_in =aExtent_meander )
 

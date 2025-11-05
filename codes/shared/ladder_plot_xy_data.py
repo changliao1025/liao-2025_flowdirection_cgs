@@ -20,6 +20,7 @@ def ladder_plot_xy_data(aX_all,
                         iReverse_y_in=None,
                         iFlag_scientific_notation_x_in=None,
                         iFlag_scientific_notation_y_in=None,
+                        iFlag_log_x_in=None,
                         iSize_x_in=None,
                         iSize_y_in=None,
                         ncolumn_in=None,
@@ -322,6 +323,13 @@ def ladder_plot_xy_data(aX_all,
 
     ax.set_xlim(dMin_x, dMax_x)
 
+    if iFlag_log_x_in is not None:
+        # Set x-axis to logarithmic scale
+        ax.set_xlim(1.0E6, 1.5E9)
+        ax.set_xscale('log')
+        # Optional: Customize the x-axis ticks for better readability
+        #ax.xaxis.set_major_formatter(mpl.ticker.ScalarFormatter())
+        #ax.xaxis.set_minor_formatter(mpl.ticker.NullFormatter())
 
 
     # if dMax_y < 1000 and dMax_y > 0.001:
@@ -386,11 +394,11 @@ def ladder_plot_xy_data(aX_all,
         labels = labels_ax + labels_twin
         # Plot combined legend
         ax.legend(handles, labels, bbox_to_anchor=aLocation_legend,
-                  loc=sLocation_legend, fontsize=12, ncol=ncolumn)
+                  loc=sLocation_legend, fontsize=10, ncol=ncolumn)
     else:
         ax.legend(bbox_to_anchor=aLocation_legend,
               loc=sLocation_legend,
-              fontsize=12,
+              fontsize=10,
               ncol=ncolumn)
 
     plt.savefig(sFilename_out, bbox_inches='tight')

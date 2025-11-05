@@ -104,19 +104,94 @@ for iCase in range(1, 5):
     aX_all.append(aCellDistance_unstructured)
     aY_all.append(aDrainage_ladder)
 
+#add drt
+
+sFilename_parameter = '/compyfs/liao313/00raw/mosart/mosart_extract_16th.nc'
+aDatasets = nc.Dataset(sFilename_parameter)
+netcdf_format = aDatasets.file_format
+#print(netcdf_format)
+#print("Print dimensions:")
+#print(aDatasets.dimensions.keys())
+#print("Print variables:")
+#print(aDatasets.variables.keys() )
+#output file
+# Copy variables
+for sKey, aValue in aDatasets.variables.items():
+    #print(sKey, aValue)
+    #print(aValue.datatype)
+    #print( aValue.dimensions)
+    if sKey == 'ID':
+        aID =  (aValue[:]).data
+    if sKey == 'dnID':
+        aDnID =  (aValue[:]).data
+    if sKey == 'fdir':
+        aFdir =  (aValue[:]).data
+    if sKey == 'latixy':
+        aLatitude = (aValue[:]).data
+    if sKey == 'longxy':
+        aLongitude = (aValue[:]).data
+    if sKey == 'areaTotal2':
+        aAccu = (aValue[:]).data
+        aAccu = aAccu * 1.0E6
+
+aCellID = np.array(aID)
+aCellID_downslope = np.array(aDnID)
+aDrainage = np.array(aAccu)
+aCellIndex_ladder = list()
+aCellID_ladder = list()
+lCellID_current = 3313180 #5035689
+aCellID_ladder.append(lCellID_current)
+index = np.where(aCellID == lCellID_current)
+iIndex = np.ravel(index)[0]
+aCellIndex_ladder.append(iIndex)
+iFlag_find_outlet = 0
+while iFlag_find_outlet == 0:
+    index = np.where(aCellID == lCellID_current)
+    if index[0] is None or len(index) == 0 or len(index[0]) == 0:
+        iFlag_find_outlet = 1
+    else:
+        iIndex = np.ravel(index)[0]
+        aCellIndex_ladder.append(iIndex)
+        lCellID_downslope = aCellID_downslope[iIndex]
+        if lCellID_downslope == -1:
+            iFlag_find_outlet = 1
+        else:
+            aCellID_ladder.append(lCellID_downslope)
+            lCellID_current = lCellID_downslope
+
+nCell_ladder = len(aCellID_ladder)
+aCellDistance_unstructured = np.full(nCell_ladder, np.nan)
+aDrainage_ladder = np.full(nCell_ladder, np.nan)
+aCellDistance_unstructured[nCell_ladder-1] = 0.0
+for i in range(nCell_ladder-2, -1, -1):
+    index0 = aCellIndex_ladder[i]
+    index1 = aCellIndex_ladder[i+1]
+    dLongitude_from = aLongitude[i]
+    dLatitude_from = aLatitude[i]
+    dLongitude_to= aLongitude[i+1]
+    dLatitude_to = aLatitude[i+1]
+    distance = calculate_distance_based_on_longitude_latitude( dLongitude_from,
+                                                   dLatitude_from,
+                                                   dLongitude_to,
+                                                   dLatitude_to)
+    aCellDistance_unstructured[i] = aCellDistance_unstructured[i+1] + distance
+    aDrainage_ladder[i] = aDrainage[index0]
+aX_all.append(aCellDistance_unstructured)
+aY_all.append(aDrainage_ladder)
+
 print('ready for plot')
 
 #aY_all_twin_in= list()
 #aY_all_twin_in.append(aData_structured1)
 #aY_all_twin_in.append(aData_unstructured1)
-aColor = ['black','red', 'blue', 'green']
-aMarker= ['s', 'h', 'o', 'd']
-aSize = np.full(4, mpl.rcParams['lines.markersize'] )
-aLinestyle = ['-', '--', '-.', ':']
-aLinewidth = [0.25, 0.25, 0.25, 0.25]
+aColor = ['black','red', 'blue', 'green', 'orange']
+aMarker= ['s', 'h', 'o', 'd', 'v']
+aSize = np.full(5, mpl.rcParams['lines.markersize'] )
+aLinestyle = ['-', '--', '-.', ':', '-']
+aLinewidth = [0.25, 0.25, 0.25, 0.25, 0.25]
 
 aLabel_legend=['Elevation based, priority-flood', 'Hybrid stream burning and priority-flood',
-                'Stream burning seeded priority-flood','Stream burning seeded priority-flood (uniform resolution)']
+                'Stream burning seeded priority-flood','Stream burning seeded priority-flood (uniform resolution)', 'DRT 1/16 degree']
 
 sFormat_x =  '%.1E'
 sFormat_y =  '%.1E'
@@ -129,13 +204,14 @@ ladder_plot_xy_data(aX_all,  aY_all,
           #iFlag_twiny_in=1,
           #aLabel_legend_twin_in=['DRT mesh-based water depth', 'MPAS mesh-based water depth'],
            # dMax_y_twin_in=6,
+           iFlag_log_x_in=1,
         iDPI_in = None, aFlag_trend_in = None,
             iReverse_y_in = None,  iSize_x_in = None,
                     iFlag_scientific_notation_x_in=1,
                       iFlag_scientific_notation_y_in=1,
-                iSize_y_in = None,  ncolumn_in = None,
+                iSize_y_in = None,  ncolumn_in = 2,
                     dMax_x_in = 1.15E9,  dMin_x_in = 0,
-                    dMax_y_in =3.5E12, dMin_y_in = 0,
+                    dMax_y_in =4.5E12, dMin_y_in = 0,
                         dSpace_y_in = None,
                             aColor_in = aColor, aLinestyle_in = aLinestyle,
                               aLinewidth_in= aLinewidth,

@@ -1,0 +1,12 @@
+{    
+    "files.watcherExclude": {
+        "**/build/**": true,
+        "**/dist/**": true,
+        "**/.git/**": true,
+        "**/data/**": true,
+        "**/scratch/**": true,
+        "**/output/**": true
+    },   
+    "git.autofetch": false,
+    "git.decorations.enabled": false,
+}

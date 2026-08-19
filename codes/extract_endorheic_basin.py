@@ -1,6 +1,7 @@
 import os
 from osgeo import ogr
-from tinyr import RTree
+from rtree.index import Index as RTreeindex
+
 from pyearth.system.define_global_variables import *
 from pyearth.toolbox.management.vector.reproject import reproject_vector
 from pyearth.toolbox.management.vector.merge_features import merge_features
@@ -10,6 +11,9 @@ def extract_endorheic_river():
     sFilename_endorheic_river ='/qfs/people/liao313/data/hexwatershed/mississippi/vector/river_endorheic.geojson'
     sFilename_boundary = '/qfs/people/liao313/data/hexwatershed/mississippi/vector/mississippi_boundary.geojson'
     sFilename_vector_out = '/qfs/people/liao313/data/hexwatershed/mississippi/vector/river_endorheic_clip.geojson'
+    sFilename_endorheic_river ='/data2/share/liaochang/data/raw/hydrology/hydrosheds/hydroriver/northamerica/HydroRIVERS_v10_na_shp/HydroRIVERS_v10_na.shp'
+    sFilename_boundary = '/public/home/liaochang/data/hexwatershed/mississippi/vector/mississippi_boundary.geojson'
+    sFilename_vector_out = '/public/home/liaochang/data/hexwatershed/mississippi/vector/river_endorheic_clip.geojson'
     clip_vector_by_polygon_file(sFilename_endorheic_river, sFilename_boundary, sFilename_vector_out )
     return
 
@@ -18,6 +22,9 @@ def extract_endorheic_basin():
     sFilename_endorheic_basin ='/compyfs/liao313/00raw/hydrology/hydroshed/hydrobasin/hybas_lake_na_lev01-12_v1c/hybas_lake_na_lev12_v1c.shp'
     sFilename_boundary = '/qfs/people/liao313/data/hexwatershed/mississippi/vector/mississippi_boundary.geojson'
     sFilename_vector_out = '/qfs/people/liao313/data/hexwatershed/mississippi/vector/basin_endorheic_clip.geojson'
+    sFilename_endorheic_basin ='/data2/share/liaochang/data/raw/hydrology/hydrosheds/hydrobasin/hybas_lake_na_lev12_v1c.shp'
+    sFilename_boundary = '/public/home/liaochang/data/hexwatershed/mississippi/vector/mississippi_boundary.geojson'
+    sFilename_vector_out = '/public/home/liaochang/data/hexwatershed/mississippi/vector/basin_endorheic_clip.geojson'
     clip_vector_by_polygon_file(sFilename_endorheic_basin, sFilename_boundary, sFilename_vector_out )
 
 
@@ -33,7 +40,8 @@ def extract_endorheic_basin_by_river(sFilename_river_endorheic, sFilename_basin_
 
     pLayer_river = pDataSource_river.GetLayer()
     pLayer_river.ResetReading()
-    index_river = RTree(max_cap=5, min_cap=2)
+    index_river = RTreeindex()
+    #index_river = RTree(max_cap=5, min_cap=2)
     #create a new layer to save the river
     i = 0
     for pFeature in pLayer_river:
@@ -68,7 +76,7 @@ def extract_endorheic_basin_by_river(sFilename_river_endorheic, sFilename_basin_
             pBound_basin = pGeometry_basin.GetEnvelope()
             #pBound = (left, bottom, right, top)
             pBound2= (pBound_basin[0], pBound_basin[2], pBound_basin[1], pBound_basin[3])
-            aIntersect = list(index_river.search(pBound2))
+            aIntersect = list(index_river.intersection(pBound2))
             for k in aIntersect:
                 pFeature_flowline = pLayer_river.GetFeature(k)
                 pGeometry_flowline = pFeature_flowline.GetGeometryRef()
@@ -94,7 +102,7 @@ def extract_endorheic_basin_by_river(sFilename_river_endorheic, sFilename_basin_
                     pBound_basin_i = pGeometry_basin_i.GetEnvelope()
                     #pBound = (left, bottom, right, top)
                     pBound2= (pBound_basin_i[0], pBound_basin_i[2], pBound_basin_i[1], pBound_basin_i[3])
-                    aIntersect = list(index_river.search(pBound2))
+                    aIntersect = list(index_river.intersection(pBound2))
                     for k in aIntersect:
                         pFeature_flowline = pLayer_river.GetFeature(k)
                         pGeometry_flowline = pFeature_flowline.GetGeometryRef()
@@ -136,5 +144,8 @@ if __name__ == '__main__':
     sFilename_river_endorheic ='/qfs/people/liao313/data/hexwatershed/mississippi/vector/river_endorheic_clip.geojson'
     sFilename_basin_endorheic = '/qfs/people/liao313/data/hexwatershed/mississippi/vector/basin_endorheic_clip.geojson'
     sFilename_vector_out = '/qfs/people/liao313/data/hexwatershed/mississippi/vector/basin_endorheic_clip_by_river.geojson'
+    sFilename_river_endorheic ='/public/home/liaochang/data/hexwatershed/mississippi/vector/river_endorheic_clip.geojson'
+    sFilename_basin_endorheic = '/public/home/liaochang/data/hexwatershed/mississippi/vector/basin_endorheic_clip.geojson'
+    sFilename_vector_out = '/public/home/liaochang/data/hexwatershed/mississippi/vector/basin_endorheic_clip_by_river.geojson'
     extract_endorheic_basin_by_river(sFilename_river_endorheic, sFilename_basin_endorheic, sFilename_vector_out)
     print('End of program')

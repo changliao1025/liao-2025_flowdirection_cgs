@@ -1,4 +1,4 @@
-import os
+import os, platform
 from osgeo import ogr
 from rtree.index import Index as RTreeindex
 
@@ -6,25 +6,43 @@ from pyearth.system.define_global_variables import *
 from pyearth.toolbox.management.vector.reproject import reproject_vector
 from pyearth.toolbox.management.vector.merge_features import merge_features
 from pyearth.toolbox.analysis.extract.clip_vector_by_polygon_file import clip_vector_by_polygon_file
-def extract_endorheic_river():
 
-    sFilename_endorheic_river ='/qfs/people/liao313/data/hexwatershed/mississippi/vector/river_endorheic.geojson'
-    sFilename_boundary = '/qfs/people/liao313/data/hexwatershed/mississippi/vector/mississippi_boundary.geojson'
-    sFilename_vector_out = '/qfs/people/liao313/data/hexwatershed/mississippi/vector/river_endorheic_clip.geojson'
-    sFilename_endorheic_river ='/data2/share/liaochang/data/raw/hydrology/hydrosheds/hydroriver/northamerica/HydroRIVERS_v10_na_shp/HydroRIVERS_v10_na.shp'
-    sFilename_boundary = '/public/home/liaochang/data/hexwatershed/mississippi/vector/mississippi_boundary.geojson'
-    sFilename_vector_out = '/public/home/liaochang/data/hexwatershed/mississippi/vector/river_endorheic_clip.geojson'
+platform = platform.system()
+def extract_endorheic_river():
+    #check what platform the code is running on
+    
+    if platform == 'Linux':
+        sFilename_endorheic_river ='/data2/share/liaochang/data/raw/hydrology/hydrosheds/hydroriver/northamerica/HydroRIVERS_v10_na_shp/HydroRIVERS_v10_na.shp'
+        sFilename_boundary = '/public/home/liaochang/data/hexwatershed/mississippi/vector/mississippi_boundary.geojson'
+        sFilename_vector_out = '/public/home/liaochang/data/hexwatershed/mississippi/vector/river_endorheic_clip.geojson'
+    else:
+        if platform == 'Windows':
+            sFilename_endorheic_river ='C:\\Users\\chang\\data\\raw\\hydrology\\hydrosheds\\hydroriver\\HydroRIVERS_v10_na_shp\\HydroRIVERS_v10_na.shp'
+            sFilename_boundary = 'C:\\Users\\chang\\data\\modeldata\\hexwatershed\\mississippi\\vector\\mississippi_boundary.geojson'
+            sFilename_vector_out = 'C:\\Users\\chang\\data\\modeldata\\hexwatershed\\mississippi\\vector\\river_endorheic_clip.geojson'
+        else: #mac
+            print('Error: platform is not supported')
+            return
+
+
+    
     clip_vector_by_polygon_file(sFilename_endorheic_river, sFilename_boundary, sFilename_vector_out )
     return
 
 
 def extract_endorheic_basin():
-    sFilename_endorheic_basin ='/compyfs/liao313/00raw/hydrology/hydroshed/hydrobasin/hybas_lake_na_lev01-12_v1c/hybas_lake_na_lev12_v1c.shp'
-    sFilename_boundary = '/qfs/people/liao313/data/hexwatershed/mississippi/vector/mississippi_boundary.geojson'
-    sFilename_vector_out = '/qfs/people/liao313/data/hexwatershed/mississippi/vector/basin_endorheic_clip.geojson'
-    sFilename_endorheic_basin ='/data2/share/liaochang/data/raw/hydrology/hydrosheds/hydrobasin/hybas_lake_na_lev12_v1c.shp'
-    sFilename_boundary = '/public/home/liaochang/data/hexwatershed/mississippi/vector/mississippi_boundary.geojson'
-    sFilename_vector_out = '/public/home/liaochang/data/hexwatershed/mississippi/vector/basin_endorheic_clip.geojson'
+    if platform == 'Linux':    
+        sFilename_endorheic_basin ='/data2/share/liaochang/data/raw/hydrology/hydrosheds/hydrobasin/hybas_lake_na_lev12_v1c.shp'
+        sFilename_boundary = '/public/home/liaochang/data/hexwatershed/mississippi/vector/mississippi_boundary.geojson'
+        sFilename_vector_out = '/public/home/liaochang/data/hexwatershed/mississippi/vector/basin_endorheic_clip.geojson'
+    else:
+        if platform == 'Windows':
+            sFilename_endorheic_basin ='C:\\Users\\chang\\data\\raw\\hydrology\\hydrosheds\\hydrobasin\\hybas_lake_na_lev01-12_v1c\\hybas_lake_na_lev12_v1c.shp'
+            sFilename_boundary = 'C:\\Users\\chang\\data\\modeldata\\hexwatershed\\mississippi\\vector\\mississippi_boundary.geojson'
+            sFilename_vector_out = 'C:\\Users\\chang\\data\\modeldata\\hexwatershed\\mississippi\\vector\\basin_endorheic_clip.geojson'
+        else: #mac
+            print('Error: platform is not supported')
+            return
     clip_vector_by_polygon_file(sFilename_endorheic_basin, sFilename_boundary, sFilename_vector_out )
 
 
@@ -62,6 +80,7 @@ def extract_endorheic_basin_by_river(sFilename_river_endorheic, sFilename_basin_
     pLayer_out = pDataset_out.CreateLayer('layer', pSpatialReference, ogr.wkbPolygon)
     #create the fields
     pFieldDefn = ogr.FieldDefn('id', ogr.OFTInteger)
+    pLayer_out.CreateField(pFieldDefn)
     pFeatureDefn = pLayer_out.GetLayerDefn()
     pDataSource_basin = pDriver.Open(sFilename_basin_endorheic, 0)
     #check basin one by one
@@ -124,10 +143,6 @@ def extract_endorheic_basin_by_river(sFilename_river_endorheic, sFilename_basin_
 
         pFeature_basin = pLayer_basin.GetNextFeature()
 
-    #
-
-
-
     pDataset_out = None
     pDataSource_river = None
     pDataSource_basin = None
@@ -141,11 +156,17 @@ if __name__ == '__main__':
     #extract_endorheic_river()
     #extract_endorheic_basin()
 
-    sFilename_river_endorheic ='/qfs/people/liao313/data/hexwatershed/mississippi/vector/river_endorheic_clip.geojson'
-    sFilename_basin_endorheic = '/qfs/people/liao313/data/hexwatershed/mississippi/vector/basin_endorheic_clip.geojson'
-    sFilename_vector_out = '/qfs/people/liao313/data/hexwatershed/mississippi/vector/basin_endorheic_clip_by_river.geojson'
-    sFilename_river_endorheic ='/public/home/liaochang/data/hexwatershed/mississippi/vector/river_endorheic_clip.geojson'
-    sFilename_basin_endorheic = '/public/home/liaochang/data/hexwatershed/mississippi/vector/basin_endorheic_clip.geojson'
-    sFilename_vector_out = '/public/home/liaochang/data/hexwatershed/mississippi/vector/basin_endorheic_clip_by_river.geojson'
+    if platform == 'Linux':
+        sFilename_river_endorheic ='/public/home/liaochang/data/hexwatershed/mississippi/vector/river_endorheic_clip.geojson'
+        sFilename_basin_endorheic = '/public/home/liaochang/data/hexwatershed/mississippi/vector/basin_endorheic_clip.geojson'
+        sFilename_vector_out = '/public/home/liaochang/data/hexwatershed/mississippi/vector/basin_endorheic_clip_by_river.geojson'
+    else:
+        if platform == 'Windows':
+            sFilename_river_endorheic ='C:\\Users\\chang\\data\\modeldata\\hexwatershed\\mississippi\\vector\\river_endorheic_clip.geojson'
+            sFilename_basin_endorheic = 'C:\\Users\\chang\\data\\modeldata\\hexwatershed\\mississippi\\vector\\basin_endorheic_clip.geojson'
+            sFilename_vector_out = 'C:\\Users\\chang\\data\\modeldata\\hexwatershed\\mississippi\\vector\\basin_endorheic_clip_by_river.geojson'
+        else: #mac
+            print('Error: platform is not supported')
+            exit()
     extract_endorheic_basin_by_river(sFilename_river_endorheic, sFilename_basin_endorheic, sFilename_vector_out)
     print('End of program')
